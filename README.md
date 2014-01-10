@@ -12,6 +12,6 @@ Currently has only been tested using Gmail and Microsoft Exchange.
 - Note that this requires Python 2.7 or higher as it uses the Counter class in the collections module
 
 ## To do
-[x] Implement list of words to exclude from rankings (e.g. 'and', 're:' etc.)
-[ ] Analyse message bodies - e.g. most common words/topics discussed
-[ ] Handle multiple email accounts and sent/received emails at once?
+- [x] Implement list of words to exclude from rankings (e.g. 'and', 're:' etc.)
+- [ ] Analyse message bodies - e.g. most common words/topics discussed
+- [ ] Handle multiple email accounts and sent/received emails at once?
