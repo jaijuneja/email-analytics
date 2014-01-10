@@ -1,11 +1,8 @@
-# TODO:
-# Implement list of words to exclude from rankings (e.g. 'and', 're:' etc.)
-# Analyse message bodies - e.g. most common words/topics
-
 import config
 import plot_mail
 import imaplib
 import email
+import datetime as dt
 from datetime import datetime
 import time
 import matplotlib.pyplot as plt
@@ -37,7 +34,12 @@ mail.login(config.IMAP_USER, config.IMAP_PASS)
 mail.list() # List of "folders" aka labels in email account
 mail.select(config.MAIL_STRING) # connect to mailbox
 
-status, email_uids = mail.uid('search', None, "ALL") # search and return uids instead
+if config.NUM_DAYS is not None:
+	startdate = (dt.date.today() - dt.timedelta(config.NUM_DAYS)).strftime("%d-%b-%Y")
+	status, email_uids = mail.uid('search', None, '(SENTSINCE {date})'.format(date=startdate))
+else:
+	status, email_uids = mail.uid('search', None, "ALL") # search and return uids instead
+
 all_email_uids = ','.join(email_uids[0].split())
 
 status, data = mail.uid('fetch', all_email_uids, '(BODY.PEEK[HEADER])')
@@ -85,15 +87,14 @@ for i in range(len(email_uids[0].split())):
 # Plot times at which emails have been sent
 plot_mail.plot_dates_sent(dates, times)
 # Plot most common words in email subjects
-plot_mail.plot_common(subjects, 10, 'Subject Words')
+plot_mail.plot_common(subjects, 10, False, 'Subject Words', 'Common Subject Words')
 # Plot the number of emails sent/received per month
-plot_mail.plot_quantity(monthyears, 'Emails ' + 
-						config.MAIL_TO_ANALYSE + ' per Month')
+plot_mail.plot_quantity(monthyears, 'Emails ' + config.MAIL_TO_ANALYSE + ' per Month')
 
 # Plot the 10 most common email senders or recipients
 if config.MAIL_TO_ANALYSE == 'Sent':
-	plot_mail.plot_common(senders, 10, 'Senders', 'Common Senders')
+	plot_mail.plot_common(recipients, 10, True, 'Recipients', 'Common Recipients')
 else:
-	plot_mail.plot_common(recipients, 10, 'Recipients', 'Common Recipients')
+	plot_mail.plot_common(senders, 10, True, 'Senders', 'Common Senders')
 
 plot_mail.done_plotting()

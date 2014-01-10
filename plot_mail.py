@@ -1,3 +1,4 @@
+import config
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 from matplotlib.ticker import FuncFormatter as ff
@@ -38,9 +39,16 @@ def plot_quantity(dates, y_label):
     months = [x[0] for x in date_count]
     quantity = [x[1] for x in date_count]
 
-    for ndx, item in enumerate(months):
-	 	if ndx%4 != 0:
-	 		months[ndx] = ''
+    # Remove some x-labels to reduce clutter in the plot
+    if len(quantity) > 40:
+    	label_spacing = 4
+    elif len(quantity) > 15:
+    	label_spacing = 2
+
+    if len(quantity) > 15:
+	    for ndx, item in enumerate(months):
+		 	if ndx%label_spacing != 0:
+	 			months[ndx] = ''
 
     ind = np.arange(len(date_count)) # x locations for the groups
     barwidth = 0.2
@@ -60,7 +68,7 @@ def plot_quantity(dates, y_label):
 
 	plt.draw()
 
-def plot_common(words, numwords, x_label, titlestr):
+def plot_common(words, numwords, isemail, x_label, titlestr):
 	# Remove spaces between words
 	words = [x.lower().split(' ') for x in words]
 	words = list(itertools.chain(*words))
@@ -68,15 +76,22 @@ def plot_common(words, numwords, x_label, titlestr):
 	wrd_list = Counter()
 	wrd_list.update(words)
 	common = wrd_list.most_common()
-	common = common[:numwords]
 
-	words = [x[0] for x in common]
-	occurrences = [x[1] for x in common]
-
-	# Remove @domain.com from email addresses
-	# for ndx, item in enumerate(words):
-	# 	name_end = words[ndx].find('@')
-	# 	words[ndx] = item[:name_end]
+	if not isemail:
+		# Restricted words
+		bad_words = config.EXCLUDE_WORDS
+		words = [x[0] for x in common if x[0] not in bad_words]
+		occurrences = [x[1] for x in common if x[0] not in bad_words]
+		words = words[:numwords]
+		occurrences = occurrences[:numwords]
+	else:
+		common = common[:numwords]
+		words = [x[0] for x in common]
+		occurrences = [x[1] for x in common]
+		# Remove @domain.com from email addresses
+		for ndx, item in enumerate(words):
+			name_end = words[ndx].find('@')
+			words[ndx] = item[:name_end]
 
 	if len(words) < numwords:
 		numwords = len(words)
