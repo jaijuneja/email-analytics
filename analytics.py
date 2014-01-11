@@ -86,15 +86,18 @@ for i in range(len(email_uids[0].split())):
 # PLOT RESULTS
 # Plot times at which emails have been sent
 plot_mail.plot_dates_sent(dates, times)
+# Plot probability of mail being delivered at given time
+plot_mail.plot_probability(times)
 # Plot most common words in email subjects
-plot_mail.plot_common(subjects, 10, False, 'Subject Words', 'Common Subject Words')
+plot_mail.plot_common(subjects, x_label='Subject Words', titlestr='Common Subject Words')
 # Plot the number of emails sent/received per month
-plot_mail.plot_quantity(monthyears, 'Emails ' + config.MAIL_TO_ANALYSE + ' per Month')
+plot_mail.plot_quantity(monthyears)
 
-# Plot the 10 most common email senders or recipients
-if config.MAIL_TO_ANALYSE == 'Sent':
-	plot_mail.plot_common(recipients, 10, True, 'Recipients', 'Common Recipients')
+if config.MAIL_TO_ANALYSE.lower() == 'sent':
+	# Plot the 10 most common email senders or recipients
+	plot_mail.plot_common(recipients, isemail=True, x_label='Recipients', titlestr='Common Recipients')
 else:
-	plot_mail.plot_common(senders, 10, True, 'Senders', 'Common Senders')
+	# Plot the 10 most common email senders or recipients
+	plot_mail.plot_common(senders, isemail=True, x_label='Senders', titlestr='Common Senders')
 
 plot_mail.done_plotting()

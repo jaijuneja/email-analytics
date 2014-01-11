@@ -13,7 +13,7 @@ NUM_DAYS = None # Number of days to go back. To view all emails, set to None.
 EXCLUDE_WORDS = ['re:', 'fwd:', 'fw:', '-', ' ', '', 'the', 'be', 'to', 'of',
 				'and', 'a', 'in', 'that', 'have', 'i', 'it', 'for', 'not',
 				'on', 'with', 'as', 'you', 'do', 'at', 'this', 'by', 'from',
-				 'they', 'or', 'an']
+				 'they', 'or', 'an', 'your']
 
 # DO NOT EDIT ANYTHING BELOW HERE --------------------------
 if (MAIL_TO_ANALYSE.lower() != 'sent' and MAIL_TO_ANALYSE.lower() != 'received'):

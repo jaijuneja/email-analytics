@@ -6,11 +6,16 @@ import pylab
 from collections import Counter
 import numpy as np
 import itertools
+from scipy.interpolate import spline
 
 def min_to_hourmin(minutes, i):
 	hrs = int(minutes/60)
 	mins = int(minutes%60)
 	return '%(h)02d:%(m)02d' % {'h':hrs,'m':mins}
+
+def roundval(x, roundto=60):
+	# Round x to nearest bin, where bin size is given by roundto
+    return int(roundto * round(float(x)/roundto))
 
 def plot_dates_sent(dates, times):
 	fig = plt.figure()
@@ -30,7 +35,7 @@ def plot_dates_sent(dates, times):
 	plt.ylabel('Delivery Time (24hr)')
 	plt.draw()
 
-def plot_quantity(dates, y_label):
+def plot_quantity(dates):
 	# dates is a list of strings where each element takes form "mm yy"
 	# Convert to unique list
     date_count = Counter(dates)
@@ -55,6 +60,8 @@ def plot_quantity(dates, y_label):
 
     fig, ax = plt.subplots()
     rects = ax.bar(ind, quantity, color='b')
+
+    y_label = 'Emails ' + config.MAIL_TO_ANALYSE + ' per Month'
     ax.set_ylabel(y_label)
     ax.set_xlabel('Month')
     ax.set_xticks(ind + barwidth/2)
@@ -68,7 +75,8 @@ def plot_quantity(dates, y_label):
 
 	plt.draw()
 
-def plot_common(words, numwords, isemail, x_label, titlestr):
+def plot_common(words, numwords=10, isemail=False, x_label='', 
+				titlestr=''):
 	# Remove spaces between words
 	words = [x.lower().split(' ') for x in words]
 	words = list(itertools.chain(*words))
@@ -112,6 +120,49 @@ def plot_common(words, numwords, isemail, x_label, titlestr):
 	    label.set_rotation(30)
 
 	plt.title('')
+	plt.draw()
+
+def plot_probability(times, smoothfit=True):
+	# dates is a list of strings where each element takes form "mm yy"
+	times = [roundval(x) for x in times]
+
+	# Convert to unique list
+	time_count = Counter(times)
+	time_count = sorted(time_count.items())
+
+	times = [x[0] for x in time_count]
+	quantity = np.array([float(x[1]) for x in time_count])
+	quantity = quantity/sum(quantity)
+
+	if smoothfit:
+		times_new = np.linspace(min(times), max(times), 300)
+		quantity = spline(times,quantity,times_new)
+		times = times_new.tolist()
+
+	fig, ax = plt.subplots()
+	plt.plot(times, quantity, 'b', linewidth=2.0, )
+
+	# Remove some x-labels to reduce clutter in the plot
+	label_spacing = 60 # 1 label per hour
+	for ndx, item in enumerate(times):
+	 	if ndx%label_spacing != 0:
+				times[ndx] = ''
+
+	ax.set_xlabel('Time')
+	ax.set_xticklabels(times)
+	# Rotate x axis labels slightly
+	labels = ax.get_xticklabels()
+	for label in labels:
+	    label.set_rotation(30)
+	ax.set_xlim(0,24*60) # 0 to 24 hours
+	ax.xaxis.set_major_locator(pylab.MultipleLocator(60))
+	ax.xaxis.set_major_formatter(ff(min_to_hourmin))
+
+	ax.set_ylabel('Probability')
+	ax.set_ylim(0, max(quantity))
+
+	titlestr = 'Probability Over Time of ' + config.MAIL_TO_ANALYSE + ' Mail'
+	plt.title(titlestr)
 	plt.draw()
 
 def done_plotting():
