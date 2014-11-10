@@ -17,6 +17,6 @@ Currently has only been tested using Gmail and Microsoft Exchange.
 
 ## To do
 - [x] Implement list of words to exclude from rankings (e.g. 'and', 're:' etc.)
-- [ ] Analyse message bodies - e.g. most common words/topics discussed
+- [x] Analyse message bodies - e.g. most common words/topics discussed
 - [ ] Handle multiple email accounts and sent/received emails at once?
 - [x] Compute probability over time of day of sending/receiving email
